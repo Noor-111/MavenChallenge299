@@ -1,0 +1,55 @@
+#!bin/bash
+SCORE=0
+
+#pom
+(sudo grep -i -e "<groupId>com.google.guava</groupId>" java-word-app/pom.xml) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 10))
+fi;
+
+(sudo grep -i -e "<finalName>WelcomeUber</finalName>" java-word-app/pom.xml) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 10))
+fi;
+
+
+(sudo grep -i -e "maven-shade-plugin" java-word-app/pom.xml) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 10))
+fi;
+
+(sudo grep -i -e "maven-compiler-plugin" java-word-app/pom.xml) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 10))
+fi;
+
+cd /projects/challenge/java-word-app
+
+mvn clean compile package > /dev/null 2>&1;
+
+(sudo find /projects/challenge/java-word-app/dependency-reduced-pom.xml) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 15))
+fi;
+
+
+(sudo find /projects/challenge/java-word-app/target/original-WelcomeUber.jar) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 15))
+fi;
+
+
+(sudo find /projects/challenge/java-word-app/target/WelcomeUber.jar) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+java -cp /projects/challenge/java-word-app/target/WelcomeUber.jar com.wordapp.App "Alpha" > output.txt
+SCORE=$((SCORE + 10))
+fi;
+
+
+(sudo grep -io -e "Welcome to Maven with Shade plugin,Alpha" output.txt) > /dev/null 2>&1;
+if [ $? -eq 0 ]; then
+SCORE=$((SCORE + 20))
+fi;
+
+
+echo "FS_SCORE:$SCORE%" 
